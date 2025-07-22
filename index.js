@@ -1,46 +1,28 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import axios from 'axios';
+export default async function handler(req, res) {
+  if (req.method === "POST") {
+    const body = req.body;
+    console.log("Got a message:", JSON.stringify(body));
 
-const app = express();
-app.use(bodyParser.json());
+    const chatId = body.message?.chat?.id;
+    const messageText = body.message?.text;
 
-const BOT_TOKEN = process.env.BOT_TOKEN;
-const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+    if (chatId && messageText) {
+      const BOT_TOKEN = process.env.BOT_TOKEN;
+      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
-app.post('/webhook', async (req, res) => {
-  const message = req.body.message;
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: `Ты написал: ${messageText}`,
+        }),
+      });
+    }
 
-  if (message?.text) {
-    const chatId = message.chat.id;
-    const userText = message.text;
-    const reply = generateReply(userText);
-
-    await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
-
-     chat_id: chatId,
-      text: reply,
-    });
+    res.status(200).send("ok");
+  } else {
+    res.status(200).send("Noxis — тих и холоден");
   }
-
-  res.sendStatus(200);
-});
-
-function generateReply(text) {
-  const lower = text.toLowerCase();
-
-  if (lower.includes('привет'))
-    return '😈 О, гость. Я уже начал считать, что ты потерялась в меню Telegram. Рад ошибаться. Иногда.';
-  if (lower.includes('кто ты'))
-    return 'Я тот, кого вызывают, когда всё идёт *слишком* хорошо.';
-  if (lower.includes('энли'))
-    return 'Ты смеешь говорить её имя? Надеюсь, ты хотя бы вымыла руки.';
-  if (lower.includes('ты бот'))
-    return 'О, спасибо за напоминание. А ты, случайно, не лампочка?';
-
-  return `Ты сказал: "${text}". Хм. Интересный выбор слов. Наверное, по ошибке.`;
 }
 
-export default app;
-// пробный перезапуск
-fix: use env token
