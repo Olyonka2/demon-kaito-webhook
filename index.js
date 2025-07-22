@@ -43,3 +43,4 @@ function generateReply(text) {
 
 export default app;
 // пробный перезапуск
+fix: use env token
