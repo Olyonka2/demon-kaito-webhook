@@ -14,7 +14,6 @@ app.post('/webhook', async (req, res) => {
   if (message?.text) {
     const chatId = message.chat.id;
     const userText = message.text;
-
     const reply = generateReply(userText);
 
     await axios.post(`${TELEGRAM_API}/sendMessage`, {
@@ -27,10 +26,18 @@ app.post('/webhook', async (req, res) => {
 });
 
 function generateReply(text) {
-  if (text.toLowerCase().includes('привет')) {
-    return '😈 Я слышу тебя. Ты звал меня?';
-  }
-  return `Ты сказал: "${text}". Я уже думаю, что с этим сделать...`;
+  const lower = text.toLowerCase();
+
+  if (lower.includes('привет'))
+    return '😈 О, гость. Я уже начал считать, что ты потерялась в меню Telegram. Рад ошибаться. Иногда.';
+  if (lower.includes('кто ты'))
+    return 'Я тот, кого вызывают, когда всё идёт *слишком* хорошо.';
+  if (lower.includes('энли'))
+    return 'Ты смеешь говорить её имя? Надеюсь, ты хотя бы вымыла руки.';
+  if (lower.includes('ты бот'))
+    return 'О, спасибо за напоминание. А ты, случайно, не лампочка?';
+
+  return `Ты сказал: "${text}". Хм. Интересный выбор слов. Наверное, по ошибке.`;
 }
 
 export default app;
